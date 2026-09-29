@@ -1,1 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic QR Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+        .card {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.1);
+        }
+        input {
+            width: 90%;
+            max-width: 350px;
+            padding: 12px;
+            margin: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 12px 25px;
+            cursor: pointer;
+            border: 0;
+            border-radius: 6px;
+        }
+        #qr {
+            margin-top: 25px;
+        }
+        img {
+            max-width: 250px;
+        }
+        a {
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Dynamic QR Generator</h1>
 
+    <input id="id" placeholder="QR ID e.g. college">
+    <br>
+    <input id="destination" placeholder="https://example.com">
+    <br>
+    <button onclick="createQR()">Create QR</button>
+
+    <div id="qr"></div>
+</div>
+
+<script>
+async function createQR() {
+    const id = document.getElementById("id").value.trim();
+    const destination = document.getElementById("destination").value.trim();
+
+    if (!id || !destination) {
+        alert("Enter both QR ID and destination URL.");
+        return;
+    }
+
+    const response = await fetch("/api/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, destination })
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+        alert(data.error);
+        return;
+    }
+
+    document.getElementById("qr").innerHTML = `
+        <h3>Your Dynamic QR</h3>
+        <img src="${data.qrImage}" alt="Dynamic QR Code">
+        <p><strong>QR URL:</strong></p>
+        <a href="${data.qrURL}" target="_blank">${data.qrURL}</a>
+        <p><a href="/admin.html">Open Admin Page</a></p>
+    `;
+}
+</script>
+</body>
+</html>
